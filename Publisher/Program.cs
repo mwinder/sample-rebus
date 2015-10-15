@@ -21,21 +21,40 @@ namespace Publisher
 
                 var customer = new Random();
 
-                Console.WriteLine("Press enter to publish a message");
-                while (Console.ReadLine().Length == 0)
+                Console.WriteLine(
+@"
+Press: n - Publish customer subscribed
+       u - Publish customer unsubscribed
+       q - Quit");
+                var running = true;
+                while (running)
                 {
-                    using (var tx = new TransactionScope())
+                    switch (Console.ReadKey().KeyChar)
                     {
-                        // perform several calls to the queueing system in here
-                        bus.Publish(new CustomerSubscribed(string.Format("Customer #{0}", customer.Next())));
-                        //bus.Send(new CustomerSubscribed("Sending"));
-
-                        tx.Complete();
+                        case 'n':
+                            bus.Publish(new CustomerSubscribed(string.Format("Customer #{0}", customer.Next())));
+                            break;
+                        case 'u':
+                            bus.Publish(new CustomerUnsubscribed(string.Format("Customer #{0}", customer.Next())));
+                            break;
+                        case 'q':
+                            bus.Publish(new PublisherExiting());
+                            running = false;
+                            break;
                     }
+
+                    //using (var tx = new TransactionScope())
+                    //{
+                    //    // perform several calls to the queueing system in here
+                    //    bus.Publish(new CustomerSubscribed(string.Format("Customer #{0}", customer.Next())));
+                    //    //bus.Send(new CustomerSubscribed("Sending"));
+
+                    //    tx.Complete();
+                    //}
                 }
             }
         }
     }
 
-    
+
 }
